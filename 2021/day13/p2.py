@@ -1,4 +1,5 @@
 import re
+import pdb
 
 def test1_CheckFolds(filename, expected):
     input = open(filename, 'r').readlines()
@@ -26,20 +27,49 @@ def StrToPointXY(pointStr):
 def PointXYToStr(x, y):
     return "{x},{y}".format(x=x, y=y)
 
+def PrintCode(pointsSet):
+    max_x = -1
+    max_y = -1
+    for p in pointsSet:
+        (x, y) = StrToPointXY(p)
+        if (x > max_x):
+            max_x = x
+        if (y > max_y):
+            max_y = y     
+    max_x += 1
+    max_y += 1
+    display = [[' ' for x in range(max_x)] for y in range(max_y)] 
+    for p in pointsSet:
+        (x, y) = StrToPointXY(p)
+        display[y][x] = '#'
+
+    for y in range(max_y):
+        for x in range(max_x):
+            print(display[y][x], end=' ')
+        print()
+
 def Fold(points, instructions):
-    pointsSet = set()
+    pointsSet = set(points)
+    auxPointSet = set()
     for step in instructions:
         (axis, fold) = ParseStep(step)
-        for pointStr in points:
+
+        for pointStr in pointsSet:
             (x, y) = StrToPointXY(pointStr)
             if axis == Y_AXIS and fold < y:
                 y = fold - (y - fold)
             if axis == X_AXIS and fold < x:
                 x = fold - (x - fold)
             pointStr = PointXYToStr(x, y)
-            pointsSet.add(pointStr)
-    
-    print(pointsSet)
+            auxPointSet.add(pointStr)
+
+        pointsSet.clear()
+        pointsSet.update(auxPointSet)
+        auxPointSet.clear()
+
+
+    PrintCode(pointsSet)
+
     return len(pointsSet)
 
 def ParseInput(input):
@@ -61,7 +91,7 @@ def main(filename):
     print("Solution: {total}".format(total=total))
 
 # testing
-test1_CheckFolds('test.in', 17)
+# test1_CheckFolds('test.in', 16)
 
 # program
 main("input.in")
